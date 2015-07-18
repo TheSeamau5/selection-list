@@ -1,4 +1,4 @@
---module SelectionList where
+module SelectionList where
 {-| Module defining a selection list data structure.
 
 A selection list is a collection that keeps track of which item in
@@ -22,15 +22,8 @@ anything pagination related.
 @docs fromList, toList
 -}
 
-import Graphics.Element exposing (show)
-
 import List
 
-main =
-  fromList 1 [2..10]
-  |> goto -8
-  |> .selected
-  |> show
 
 {-| Selection List type.
 A selection list is composed of two lists and a single value representing
