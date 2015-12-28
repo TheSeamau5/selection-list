@@ -59,16 +59,16 @@ length list =
 -}
 map : (a -> b) -> SelectionList a -> SelectionList b
 map f list =
-  { list | previous <- List.map f list.previous
-         , selected <- f list.selected
-         , next     <- List.map f list.next
+  { list | previous = List.map f list.previous
+         , selected = f list.selected
+         , next     = List.map f list.next
   }
 
 {-| Update only the selected item.
 -}
 updateSelected : (a -> a) -> SelectionList a -> SelectionList a
 updateSelected f list =
-  { list | selected <- f list.selected }
+  { list | selected = f list.selected }
 
 {-| Update only the nth value of a selection list.
 This is a no-op if the index is out of bounds.
@@ -87,9 +87,9 @@ and next elements in each list not matching.
 -}
 map2 : (a -> b -> c) -> SelectionList a -> SelectionList b -> SelectionList c
 map2 f listA listB =
-  { listA | previous <- List.map2 f listA.previous listB.previous
-          , selected <- f listA.selected listB.selected
-          , next     <- List.map2 f listA.next listB.next
+  { listA | previous = List.map2 f listA.previous listB.previous
+          , selected = f listA.selected listB.selected
+          , next     = List.map2 f listA.next listB.next
   }
 
 {-| Chain multiple `map` operations together.
@@ -107,9 +107,9 @@ indexedMap f list =
       previousLength = List.length list.previous
       nextLength = List.length list.next
   in
-      { list | previous <- List.reverse (List.indexedMap f (List.reverse list.previous))
-             , selected <- f previousLength list.selected
-             , next     <- List.indexedMap (\index -> f (index + previousLength + 1)) list.next
+      { list | previous = List.reverse (List.indexedMap f (List.reverse list.previous))
+             , selected = f previousLength list.selected
+             , next     = List.indexedMap (\index -> f (index + previousLength + 1)) list.next
       }
 
 
@@ -120,9 +120,9 @@ functions depending on whether the item is selected or not.
 -}
 selectedMap : (Bool -> a -> b) -> SelectionList a -> SelectionList b
 selectedMap f list =
-  { list | previous <- List.map (f False) list.previous
-         , selected <- f True list.selected
-         , next     <- List.map (f False) list.next
+  { list | previous = List.map (f False) list.previous
+         , selected = f True list.selected
+         , next     = List.map (f False) list.next
   }
 
 {-| Go to the next item in the selection list.
@@ -135,9 +135,9 @@ next list =
       list
 
     x :: xs ->
-      { list | selected <- x
-             , previous <- list.selected :: list.previous
-             , next     <- xs
+      { list | selected = x
+             , previous = list.selected :: list.previous
+             , next     = xs
       }
 
 
@@ -151,9 +151,9 @@ previous list =
       list
 
     x :: xs ->
-      { list | selected <- x
-             , previous <- xs
-             , next     <- list.selected :: list.next
+      { list | selected = x
+             , previous = xs
+             , next     = list.selected :: list.next
       }
 
 {-| Get the selected index of the selected item.
@@ -174,14 +174,11 @@ goto n list =
       curIndex =
         selectedIndex list
   in
-      if | curIndex == n ->
-             list
-
-         | curIndex < n && List.length list.next > 0 ->
-             goto n (next list)
-
-         | curIndex > (max 0 n) ->
-             goto n (previous list)
-
-         | otherwise ->
-             list
+      if curIndex == n then
+        list
+      else if curIndex < n && List.length list.next > 0 then
+        goto n (next list)
+      else if curIndex > (max 0 n) then
+        goto n (previous list)
+      else
+        list
